@@ -2,9 +2,11 @@ const express = require("express");
 const dotenv = require("dotenv").config();
 const colors = require("color");
 const { urlencoded } = require("express");
+const DBConnection = require("./config/db");
 
 const port = process.env.PORT || 5000;
 
+DBConnection();
 const app = express();
 
 app.use(express());

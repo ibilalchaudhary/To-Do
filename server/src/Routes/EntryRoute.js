@@ -1,3 +1,4 @@
+const { json } = require("express");
 const express = require("express");
 const asyncHandler = require("express-async-handler");
 
@@ -5,11 +6,13 @@ const route = require("express").Router();
 
 const Todo = require("../Models/EntryModel");
 
-route.get("/", async (req, res) => {
-  const todo = await Todo.find();
-  res.status(200);
-  // console.log(`here is your data${todo}`);
-});
+route.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const todo = await Todo.find();
+    res.status(200).json(todo);
+  })
+);
 
 route.post(
   "/",
@@ -28,17 +31,29 @@ route.post(
 route.put(
   "/:id",
   asyncHandler(async (req, res) => {
-    res.json({
-      message: "its put request",
+    const todo = await Todo.findById(req.params.id);
+    if (!todo) {
+      res.status(400);
+      throw new Error("didn't update find");
+    }
+
+    const updatedTodo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
     });
+    res.status(200).json(updatedTodo);
   })
 );
 route.delete(
   "/:id",
   asyncHandler(async (req, res) => {
-    res.json({
-      message: "its delete request",
-    });
+    const todo = await Todo.findById(req.params.id);
+    if (!todo) {
+      res.status(400);
+      throw new Error("didn't update find");
+    }
+
+    await todo.remove();
+    res.status(200).json({ id: req.params.id });
   })
 );
 
